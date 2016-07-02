@@ -1,0 +1,24 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cuba (3.8.0)
+      rack (>= 1.6.0)
+    hiredis (0.6.1)
+    puma (3.4.0)
+    rack (2.0.1)
+    redis (3.3.0)
+    redis-lock (0.2.0)
+      redis
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cuba
+  hiredis
+  puma
+  redis
+  redis-lock
+
+BUNDLED WITH
+   1.12.5
