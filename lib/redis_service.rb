@@ -1,33 +1,26 @@
 require_relative 'redis_driver'
 
 class RedisService
-  def initialize(redis, log)
+  def initialize(redis)
     @redis = redis
+  end
+
+  def log=(log)
     @log = log
-
-    @redis.driver.flushall
   end
 
-  def lock_unsafe(limit)
-    @log.info("![lock] running with limit #{limit}")
+  def batch_without_lua(limit)
+    result = 0
 
-    (1..limit).times do
-      @redis.driver.incr :lock_unsafe_total
+    @log.info(" [safe] running with limit #{limit}")
+
+    limit.times do
+      result = @redis.driver.incr :batch_total_non_lua
+
+      @redis.driver.sadd :batch_members_non_lua, result
     end
 
-    { total: @redis.driver.get(:lock_unsafe_total) }
-  end
-
-  def lock_safe(limit)
-    @log.info(" [lock] running with limit #{limit}")
-
-    @redis.driver.lock("safe", 600, 1000) do
-      (1..limit).times do
-        @redis.driver.incr :lock_safe_total
-      end
-    end
-
-    { total: @redis.driver.get(:lock_safe_total) }
+    { total: result, items: @redis.driver.smembers(:batch_members_non_lua) }
   end
 
   def batch_with_lua(limit)
@@ -44,7 +37,7 @@ class RedisService
     @log.info("![lua] multi with limit #{limit}")
 
     @redis.driver.multi do
-      (1..limit).to_a.each do |i|
+      limit.times do
         @redis.driver.incr :multi_total_non_lua
 
         @redis.driver.sadd :multi_members_non_lua, result

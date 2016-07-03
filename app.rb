@@ -3,34 +3,16 @@ require 'json'
 
 require_relative 'lib/redis_service'
 
-Cuba.define do
-  log = env['rack.logger']
+conn = Redis.new(host: :redis)
+redis = RedisDriver.new(conn)
+service = RedisService.new(redis)
 
-  conn = Redis.new(host: :redis)
-  redis = RedisDriver.new(conn)
-  service = RedisService.new(redis, log)
+Cuba.define do
+  service.log = log = env['rack.logger']
 
   on get do
     on root do
       res.write "Hello stranger :)\n"
-    end
-
-    on "lock/without", param("limit") do |limit|
-      log.info("Tryng to run lock unsafe with limit #{limit}")
-
-      result = service.lock_unsafe(limit.to_i)
-
-      res.status = result[:total].to_i > limit.to_i ? 400 : 200
-      res.write("#{JSON.generate(result)}\n")
-    end
-
-    on "lock/with", param("limit") do |limit|
-      log.info("Tryng to run lock safe with limit #{limit}")
-
-      result = service.lock_safe(limit.to_i)
-
-      res.status = result[:total].to_i > limit.to_i ? 400 : 200
-      res.write("#{JSON.generate(result)}\n")
     end
 
     on "batch/lua/without", param("limit") do |limit|

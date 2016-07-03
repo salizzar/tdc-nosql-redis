@@ -1,5 +1,4 @@
 require 'redis'
-require 'redis-lock'
 
 class RedisDriver
   def initialize(redis)

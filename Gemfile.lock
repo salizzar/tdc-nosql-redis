@@ -7,8 +7,6 @@ GEM
     puma (3.4.0)
     rack (2.0.1)
     redis (3.3.0)
-    redis-lock (0.2.0)
-      redis
 
 PLATFORMS
   ruby
@@ -18,7 +16,6 @@ DEPENDENCIES
   hiredis
   puma
   redis
-  redis-lock
 
 BUNDLED WITH
    1.12.5
