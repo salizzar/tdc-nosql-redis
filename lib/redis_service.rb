@@ -12,7 +12,7 @@ class RedisService
   def batch_without_lua(limit)
     result = 0
 
-    @log.info(" [safe] running with limit #{limit}")
+    @log.info("![lua] running with limit #{limit}")
 
     limit.times do
       result = @redis.driver.incr :batch_total_non_lua
